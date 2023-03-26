@@ -8,18 +8,14 @@ spec:
       app: mysql-db 
   serviceName: headless-mysql
   replicas: {{ .Values.replicaCount }}
-  spec:
-    template:
-      metadata:
-	  annotations:
-	    vault.hashicorp.com/agent-inject: "true"
-	    vault.hashicorp.com/agent-inject-secret-app: "secret/mysql"
-	    vault.hashicorp.com/role: "app"
   template:
     metadata:
       labels:
-        app: mysql-db 
-    spec:
+        app: mysql-db
+      annotations:
+	    vault.hashicorp.com/agent-inject: "true"
+	    vault.hashicorp.com/agent-inject-secret-app: "secret/mysql"
+	    vault.hashicorp.com/role: "app"
       serviceAccountName: vault
       containers:
       - name: mysql
