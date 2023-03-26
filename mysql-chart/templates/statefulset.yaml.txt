@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ .Release.Name }}-mysql
+  name: {{ .Release.Name }}-set
 spec:
   selector:
     matchLabels:
