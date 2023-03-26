@@ -1,0 +1,48 @@
+>> helm repo add hashicorp https://helm.releases.hashicorp.com
+
+>> helm repo update
+
+>> helm install my-vault hashicorp/vault 		# Install vault as a pod in kubernetes cluster
+
+>> kubectl exec -it my-vault-0 -- sh 			# Login to the vault pods
+
+>> vault operator init 					# Initialize the vault
+
+>> vault operator unseal 				# Unseal the vault using atleast 3 keys in all the pods using the generated keys
+
+>> export VAULT_ADDR='http://127.0.0.1:8200'
+
+>> vault secrets enable -path=secret kv-v2 		# Enable the secrets engine in the vault pods
+
+
+>> vault kv put secret/mysql username="root" password="password" # Create secrets to inject to the kubernetes pods
+
+
+>> vault auth enable kubernetes 			# To enabel authentication from vault to kubernetes
+
+##Ready policy needed for reading the secrets
+
+path "policy/policy.hcl" {
+	capabilities = ["read"]
+}
+
+>> vault policy write read-policy policy/policy.hcl # Create read policy
+
+>> vault write auth/kubernetes/config \
+	kubernetes_host=https://${KUBERNETES_PORT_443_TCP_ADDR}:443  # Add the kubernetes authentication in config
+
+>> kubectl create sa vault
+
+>> vault write auth/kubernetes/role/myapp \
+	bound_service_account_names=vault \
+	bound_service_account_namespaces=default \
+	policies=read-policy \
+	ttl=1h						# Create role and Attach to the service account in default Namespace
+
+
+>> helm install mysql mysql-chart/.			# Create statefulset of mysql database
+
+#For data high availability statefulset in kubernetes is used.
+##Local storage used for storageclass. So storage class Not mentioned in the statefulset.yaml file
+
+>> kubectl patch statefulset orgchart --patch "$(cat patch-inject-secrets.yaml)" # Patch it to the statefulset created
