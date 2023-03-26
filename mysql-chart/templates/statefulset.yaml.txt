@@ -16,6 +16,7 @@ spec:
 	    vault.hashicorp.com/agent-inject: "true"
 	    vault.hashicorp.com/agent-inject-secret-app: "secret/mysql"
 	    vault.hashicorp.com/role: "app"
+    spec:
       serviceAccountName: vault
       containers:
       - name: mysql
